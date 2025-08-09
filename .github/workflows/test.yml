@@ -12,10 +12,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ubuntu-24.04]
+        os: [ubuntu-24.04, windows-2022, macos-14]
         python-version: ["3.13"]
 
-    runs-on: ${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v4
@@ -37,11 +37,12 @@ jobs:
         # create virtual environment
         uv venv --python=${{ matrix.python-version }}
 
+        export CMAKE_PREFIX_PATH=${{ github.workspace }}/pybind11/pybind11/share/cmake
+        export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
+
         case "$RUNNER_OS" in
             Linux)
             source .venv/bin/activate
-            export CMAKE_PREFIX_PATH=${{ github.workspace }}/pybind11/pybind11/share/cmake
-            export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
             ;;
             Windows)
             source .venv/Scripts/activate
@@ -50,9 +51,6 @@ jobs:
             source .venv/bin/activate
             ;;
         esac
-
-        # install some dependencies
-        uv pip install pybind11 setuptools
 
         # compile program
         uv pip install -v -e .
