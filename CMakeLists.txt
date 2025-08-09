@@ -1,10 +1,14 @@
 cmake_minimum_required(VERSION 3.4...3.18)
-project(cmake_example)
 
-add_subdirectory(pybind11)
-pybind11_add_module(cmake_example src/main.cpp)
+project(cppcore)
 
-# EXAMPLE_VERSION_INFO is defined by setup.py and passed into the C++ code as a
-# define (VERSION_INFO) here.
-target_compile_definitions(cmake_example
-                           PRIVATE VERSION_INFO=${EXAMPLE_VERSION_INFO})
+set(PYBIND11_FINDPYTHON ON)
+find_package(pybind11 CONFIG REQUIRED)
+message(STATUS "pybind11 found: ${pybind11_FOUND}")
+
+pybind11_add_module(cppcore src/cpp/main.cpp)
+
+target_compile_definitions(
+    cppcore
+    PRIVATE VERSION_INFO=${EXAMPLE_VERSION_INFO}
+)
