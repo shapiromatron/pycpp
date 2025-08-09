@@ -31,13 +31,14 @@ jobs:
       shell: bash
       run: |
         if [[ "$RUNNER_OS" == "Linux" ]]; then
-          export VCPKG_HOST_TRIPLET=x64-linux-dynamic
+          VCPKG_HOST_TRIPLET=x64-linux-dynamic
         elif [[ "$RUNNER_OS" == "Windows" ]]; then
-          export VCPKG_HOST_TRIPLET=x64-mingw-dynamic
+          VCPKG_HOST_TRIPLET=x64-mingw-dynamic
         elif [[ "$RUNNER_OS" == "macOS" ]]; then
-          export VCPKG_HOST_TRIPLET=arm64-osx-dynamic
+          VCPKG_HOST_TRIPLET=arm64-osx-dynamic
         fi
         echo VCPKG_HOST_TRIPLET="$VCPKG_HOST_TRIPLET" >> $GITHUB_OUTPUT
+        echo $VCPKG_HOST_TRIPLET
 
     - name: Acquire vcpkg
       if: steps.cache-vcpkg-deps.outputs.cache-hit != 'true'
