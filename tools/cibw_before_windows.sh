@@ -2,7 +2,17 @@
 
 set -eo pipefail
 
-ls
+pip install pybind11==3.0.0 --target=$GITHUB_WORKSPACE/pybind11
+
 pwd
-pip install pybind11==3.0.0 --target=pybind11
 ls
+
+echo $GITHUB_WORKSPACE
+
+ls -laht $GITHUB_WORKSPACE
+ls -laht $GITHUB_WORKSPACE/pybind11
+ls -laht $GITHUB_WORKSPACE/pybind11/pybind11
+ls -laht $GITHUB_WORKSPACE/pybind11/pybind11/share
+ls -laht $GITHUB_WORKSPACE/pybind11/pybind11/share/cmake
+ls -laht $GITHUB_WORKSPACE/pybind11/pybind11/share/cmake/pybind11
+
