@@ -73,9 +73,13 @@ jobs:
 
         source .venv/bin/activate
 
-        echo $VCPKG_HOST_TRIPLET
+        echo "START"
         export CMAKE_PREFIX_PATH=${{ github.workspace }}/pybind11/pybind11/share/cmake
         export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
+
+        env
+
+        echo "END"
 
         uv pip install -v -e .
 
