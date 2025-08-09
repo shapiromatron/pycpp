@@ -41,15 +41,15 @@ jobs:
       shell: bash
       run: |
         if [[ "$RUNNER_OS" == "Linux" ]]; then
-          export $VCPKG_HOST_TRIPLET=x64-linux-dynamic
+          export VCPKG_HOST_TRIPLET=x64-linux-dynamic
         elif [[ "$RUNNER_OS" == "Windows" ]]; then
-          export $VCPKG_HOST_TRIPLET=x64-mingw-dynamic
+          export VCPKG_HOST_TRIPLET=x64-mingw-dynamic
         elif [[ "$RUNNER_OS" == "macOS" ]]; then
-          export $VCPKG_HOST_TRIPLET=arm64-osx-dynamic
+          export VCPKG_HOST_TRIPLET=arm64-osx-dynamic
         fi
         echo VCPKG_HOST_TRIPLET="$VCPKG_HOST_TRIPLET" >> $GITHUB_OUTPUT
         ./vcpkg/bootstrap-vcpkg.sh"
-        ./vcpkg/vcpkg install --host-triplet=$VCPKG_HOST_TRIPLET
+        ./vcpkg/vcpkg install --host-triplet="$VCPKG_HOST_TRIPLET"
 
     - uses: actions/setup-python@v5
       with:
