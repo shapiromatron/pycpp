@@ -1,7 +1,5 @@
 import os
-import re
 import subprocess
-import sys
 from pathlib import Path
 
 from setuptools import Extension, setup
@@ -31,43 +29,19 @@ class CMakeBuild(build_ext):
         ext_fullpath = Path.cwd() / self.get_ext_fullpath(ext.name)
         extdir = ext_fullpath.parent.resolve()
 
-        # Using this requires trailing slash for auto-detection & inclusion of
-        # auxiliary "native" libs
-
         debug = int(os.environ.get("DEBUG", 0)) if self.debug is None else self.debug
         cfg = "Debug" if debug else "Release"
 
-        # CMake lets you override the generator - we need to check this.
-        # Can be set with Conda-Build, for example.
         cmake_generator = os.environ.get("CMAKE_GENERATOR", "")
-
-        p = ";".join(
-            [
-                # "/Users/andyshapiro/dev/pycpp/cfg/include/pybind11",
-                "/Users/andyshapiro//dev/pycpp/.venv/lib/python3.13/site-packages/pybind11/share/cmake",
-                # "/Users/andyshapiro/dev/temp/vcpkg-actions/vcpkg_installed/arm64-osx-dynamic/include/eigen3",
-                # "/Users/andyshapiro/dev/temp/vcpkg-actions/vcpkg_installed/arm64-osx-dynamic/include",
-                # "/Users/andyshapiro/dev/temp/vcpkg-actions/vcpkg_installed/arm64-osx-dynamic/lib",
-            ]
-        )
         cmake_args = [
             f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={extdir}{os.sep}",
-            f"-DPYTHON_EXECUTABLE={sys.executable}",
             f"-DCMAKE_BUILD_TYPE={cfg}",  # not used on MSVC, but no harm
-            f"-DCMAKE_PREFIX_PATH={p}",
         ]
         build_args = []
-        # Adding CMake arguments set as environment variable
-        # (needed e.g. to build for ARM OSx on conda-forge)
         if "CMAKE_ARGS" in os.environ:
             cmake_args += [item for item in os.environ["CMAKE_ARGS"].split(" ") if item]
 
         if self.compiler.compiler_type != "msvc":
-            # Using Ninja-build since it a) is available as a wheel and b)
-            # multithreads automatically. MSVC would require all variables be
-            # exported for Ninja to pick it up, which is a little tricky to do.
-            # Users can override the generator with CMAKE_GENERATOR in CMake
-            # 3.15+.
             if not cmake_generator or cmake_generator == "Ninja":
                 try:
                     import ninja
@@ -81,39 +55,17 @@ class CMakeBuild(build_ext):
                     pass
 
         else:
-            # Single config generators are handled "normally"
             single_config = any(x in cmake_generator for x in {"NMake", "Ninja"})
-
-            # CMake allows an arch-in-generator style for backward compatibility
             contains_arch = any(x in cmake_generator for x in {"ARM", "Win64"})
 
-            # Specify the arch if using MSVC generator, but only if it doesn't
-            # contain a backward-compatibility arch spec already in the
-            # generator name.
             if not single_config and not contains_arch:
                 cmake_args += ["-A", PLAT_TO_CMAKE[self.plat_name]]
 
-            # Multi-config generators have a different way to specify configs
             if not single_config:
                 cmake_args += [
                     f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{cfg.upper()}={extdir}"
                 ]
                 build_args += ["--config", cfg]
-
-        if sys.platform.startswith("darwin"):
-            # Cross-compile support for macOS - respect ARCHFLAGS if set
-            archs = re.findall(r"-arch (\S+)", os.environ.get("ARCHFLAGS", ""))
-            if archs:
-                cmake_args += ["-DCMAKE_OSX_ARCHITECTURES={}".format(";".join(archs))]
-
-        # Set CMAKE_BUILD_PARALLEL_LEVEL to control the parallel build level
-        # across all generators.
-        if "CMAKE_BUILD_PARALLEL_LEVEL" not in os.environ:
-            # self.parallel is a Python 3 only way to set parallel jobs by hand
-            # using -j in the build_ext call, not supported by pip or PyPA-build.
-            if hasattr(self, "parallel") and self.parallel:
-                # CMake 3.12+ only.
-                build_args += [f"-j{self.parallel}"]
 
         build_temp = Path(self.build_temp) / ext.name
         if not build_temp.exists():
@@ -127,8 +79,6 @@ class CMakeBuild(build_ext):
         )
 
 
-# The information here can also be placed in setup.cfg - better separation of
-# logic and declaration, and simpler if you include description/version in a file.
 setup(
     ext_modules=[CMakeExtension("demo.cppcore")],
     cmdclass={"build_ext": CMakeBuild},
