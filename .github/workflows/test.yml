@@ -53,7 +53,7 @@ jobs:
 
         uv venv --python=${{ matrix.python-version }}
 
-        source .venv/Scripts/activate
+        .venv/Scripts/activate
 
         $env:CMAKE_PREFIX_PATH=${{ github.workspace }}\pybind11\pybind11\share\cmake
         $env:CMAKE_BUILD_PARALLEL_LEVEL = [Environment]::ProcessorCount
