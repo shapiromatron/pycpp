@@ -26,7 +26,7 @@ jobs:
       env:
         CIBW_BUILD: "cp313*"
         CIBW_BEFORE_ALL_LINUX: "source tools/cibw_linux_before_all.sh"
-        CIBW_ENVIRONMENT_PASS_LINUX: "CMAKE_PREFIX_PATH"
+        CIBW_ENVIRONMENT_LINUX: "CMAKE_PREFIX_PATH=/project/pybind11/pybind11/share/cmake"
 
     - name: Upload wheels
       uses: actions/upload-artifact@v4
