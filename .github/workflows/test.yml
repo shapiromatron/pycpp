@@ -12,7 +12,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04, windows-2022, macos-14]
+        # os: [ubuntu-24.04, windows-2022, macos-14]
+        os: [windows-2022]
         python-version: ["3.13"]
 
     runs-on: ${{ matrix.os }}
@@ -30,29 +31,33 @@ jobs:
         cache-dependency-glob: "**/pyproject.toml"
 
     - name: Build pybmds
-      shell: bash
+      if: runner.os != 'Windows'
       run: |
         uv pip install pybind11==3.0.0 --target=./pybind11
 
-        # create virtual environment
         uv venv --python=${{ matrix.python-version }}
+
+        source .venv/bin/activate
 
         export CMAKE_PREFIX_PATH=${{ github.workspace }}/pybind11/pybind11/share/cmake
         export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
 
-        case "$RUNNER_OS" in
-            Linux)
-            source .venv/bin/activate
-            ;;
-            Windows)
-            source .venv/Scripts/activate
-            ;;
-            macOS)
-            source .venv/bin/activate
-            ;;
-        esac
+        uv pip install -v -e .
 
-        # compile program
+        py.test
+
+    - name: Build pybmds
+      if: runner.os == 'Windows'
+      run: |
+        uv pip install pybind11==3.0.0 --target=./pybind11
+
+        uv venv --python=${{ matrix.python-version }}
+
+        source .venv/Scripts/activate
+
+        $env:CMAKE_PREFIX_PATH=${{ github.workspace }}\pybind11\pybind11\share\cmake
+        $env:CMAKE_BUILD_PARALLEL_LEVEL = [Environment]::ProcessorCount
+
         uv pip install -v -e .
 
         py.test

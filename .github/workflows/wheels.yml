@@ -2,7 +2,7 @@ name: Build package wheels
 
 on:
   workflow_dispatch:
-  pull_request:
+  # pull_request:
   push:
     branches:
      - main
@@ -27,6 +27,7 @@ jobs:
         CIBW_SKIP: "*musllinux*"
         CIBW_BEFORE_ALL: "source tools/cibw_linux_before_all.sh"
         CIBW_ENVIRONMENT: "CMAKE_PREFIX_PATH=/project/pybind11/pybind11/share/cmake"
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
 
     - name: Upload wheels
       uses: actions/upload-artifact@v4
