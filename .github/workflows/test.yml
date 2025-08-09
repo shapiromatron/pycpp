@@ -32,7 +32,7 @@ jobs:
     - name: Build pybmds
       shell: bash
       run: |
-        uv pip install pybind==3.0.0 --target=./pybind11
+        uv pip install pybind11==3.0.0 --target=./pybind11
 
         # create virtual environment
         uv venv --python=${{ matrix.python-version }}

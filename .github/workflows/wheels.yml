@@ -24,8 +24,8 @@ jobs:
 
     - uses: pypa/cibuildwheel@v3.1.3
       env:
-        CIBW_BUILD="cp313*"
-        CIBW_BEFORE_ALL_LINUX="source tools/cibw_linux_before_all.sh"
+        CIBW_BUILD: "cp313*"
+        CIBW_BEFORE_ALL_LINUX: "source tools/cibw_linux_before_all.sh"
 
     - name: Upload wheels
       uses: actions/upload-artifact@v4
