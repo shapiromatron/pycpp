@@ -27,6 +27,18 @@ jobs:
         path: vcpkg_installed
         key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
 
+    - name: Set compile target
+      shell: bash
+      run: |
+        if [[ "$RUNNER_OS" == "Linux" ]]; then
+          export VCPKG_HOST_TRIPLET=x64-linux-dynamic
+        elif [[ "$RUNNER_OS" == "Windows" ]]; then
+          export VCPKG_HOST_TRIPLET=x64-mingw-dynamic
+        elif [[ "$RUNNER_OS" == "macOS" ]]; then
+          export VCPKG_HOST_TRIPLET=arm64-osx-dynamic
+        fi
+        echo VCPKG_HOST_TRIPLET="$VCPKG_HOST_TRIPLET" >> $GITHUB_OUTPUT
+
     - name: Acquire vcpkg
       if: steps.cache-vcpkg-deps.outputs.cache-hit != 'true'
       uses: actions/checkout@v4
@@ -39,14 +51,6 @@ jobs:
       if: steps.cache-vcpkg-deps.outputs.cache-hit != 'true'
       shell: bash
       run: |
-        if [[ "$RUNNER_OS" == "Linux" ]]; then
-          export VCPKG_HOST_TRIPLET=x64-linux-dynamic
-        elif [[ "$RUNNER_OS" == "Windows" ]]; then
-          export VCPKG_HOST_TRIPLET=x64-mingw-dynamic
-        elif [[ "$RUNNER_OS" == "macOS" ]]; then
-          export VCPKG_HOST_TRIPLET=arm64-osx-dynamic
-        fi
-        echo VCPKG_HOST_TRIPLET="$VCPKG_HOST_TRIPLET" >> $GITHUB_OUTPUT
         ./vcpkg/bootstrap-vcpkg.sh
         ./vcpkg/vcpkg install --host-triplet="$VCPKG_HOST_TRIPLET"
 
@@ -59,34 +63,36 @@ jobs:
       with:
         cache-dependency-glob: "**/pyproject.toml"
 
-    # - name: Build pybmds
-    #   if: runner.os != 'Windows'
-    #   run: |
-    #     uv pip install pybind11==3.0.0 --target=./pybind11
+    - name: Build pybmds
+      if: runner.os != 'Windows'
+      run: |
+        uv pip install pybind11==3.0.0 --target=./pybind11
 
-    #     uv venv --python=${{ matrix.python-version }}
+        uv venv --python=${{ matrix.python-version }}
 
-    #     source .venv/bin/activate
+        source .venv/bin/activate
 
-    #     export CMAKE_PREFIX_PATH=${{ github.workspace }}/pybind11/pybind11/share/cmake
-    #     export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
+        echo $VCPKG_HOST_TRIPLET
+        export CMAKE_PREFIX_PATH=${{ github.workspace }}/pybind11/pybind11/share/cmake
+        export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
 
-    #     uv pip install -v -e .
+        uv pip install -v -e .
 
-    #     py.test
+        py.test
 
-    # - name: Build pybmds
-    #   if: runner.os == 'Windows'
-    #   run: |
-    #     uv pip install pybind11==3.0.0 --target=./pybind11
+    - name: Build pybmds
+      if: runner.os == 'Windows'
+      run: |
+        uv pip install pybind11==3.0.0 --target=./pybind11
 
-    #     uv venv --python=${{ matrix.python-version }}
+        uv venv --python=${{ matrix.python-version }}
 
-    #     .venv/Scripts/activate
+        .venv/Scripts/activate
 
-    #     $env:CMAKE_PREFIX_PATH="${{ github.workspace }}\pybind11\pybind11\share\cmake"
-    #     $env:CMAKE_BUILD_PARALLEL_LEVEL = [Environment]::ProcessorCount
+        echo $env:VCPKG_HOST_TRIPLET
+        $env:CMAKE_PREFIX_PATH="${{ github.workspace }}\pybind11\pybind11\share\cmake"
+        $env:CMAKE_BUILD_PARALLEL_LEVEL = [Environment]::ProcessorCount
 
-    #     uv pip install -v -e .
+        uv pip install -v -e .
 
-    #     py.test
+        py.test
