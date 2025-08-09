@@ -39,6 +39,8 @@ jobs:
         case "$RUNNER_OS" in
             Linux)
             source .venv/bin/activate
+            export CMAKE_PREFIX_PATH=${{ github.workspace }}/.venv/lib/python${{ matrix.python-version }}/site-packages/pybind11/share/cmake
+            export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
             ;;
             Windows)
             source .venv/Scripts/activate
