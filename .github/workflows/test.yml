@@ -52,7 +52,6 @@ jobs:
 
         # install some dependencies
         uv pip install pybind11 setuptools
-        # export CMAKE_PREFIX_PATH="$(python tools/tools.py)"
 
         # compile program
         uv pip install -v -e .
