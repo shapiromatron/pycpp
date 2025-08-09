@@ -27,7 +27,7 @@ jobs:
         CIBW_BUILD: "cp313*"
         CIBW_SKIP: "*musllinux*"
 
-        CIBW_BEFORE_ALL_WINDOWS: ${{ github.workspace }}\tools\cibw_before_windows.ps1
+        CIBW_BEFORE_ALL_WINDOWS: bash tools\cibw_before_windows.sh
         CIBW_ENVIRONMENT_WINDOWS: CMAKE_PREFIX_PATH=${{ github.workspace }}\pybind11\pybind11\share\cmake
 
         CIBW_BEFORE_ALL_LINUX: "source tools/cibw_before_linux.sh"
