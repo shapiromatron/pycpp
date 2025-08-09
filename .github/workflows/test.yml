@@ -48,7 +48,7 @@ jobs:
           export VCPKG_HOST_TRIPLET=arm64-osx-dynamic
         fi
         echo VCPKG_HOST_TRIPLET="$VCPKG_HOST_TRIPLET" >> $GITHUB_OUTPUT
-        ./vcpkg/bootstrap-vcpkg.sh"
+        ./vcpkg/bootstrap-vcpkg.sh
         ./vcpkg/vcpkg install --host-triplet="$VCPKG_HOST_TRIPLET"
 
     - uses: actions/setup-python@v5
