@@ -53,7 +53,7 @@ std::vector<double> nlopt_demo(const std::vector<double>& lower_bounds,
     if (lower_bounds.size() != 2 || upper_bounds.size() != 2)
         throw std::invalid_argument("Bounds must have size 2");
 
-    nlopt_opt opt = nlopt_create(NLOPT_LD_LBFGS, 2);
+    nlopt_opt opt = nlopt_create(NLOPT_LN_NELDERMEAD, 2);
     nlopt_set_lower_bounds(opt, lower_bounds.data());
     nlopt_set_upper_bounds(opt, upper_bounds.data());
     nlopt_set_min_objective(opt, objfunc, nullptr);
