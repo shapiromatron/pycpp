@@ -76,6 +76,7 @@ jobs:
         export CMAKE_PREFIX_PATH=${{ github.workspace }}/pybind11/pybind11/share/cmake
         export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
 
+        env
         uv pip install -v -e .
 
         py.test
