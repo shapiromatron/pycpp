@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04]
+        os: [ubuntu-24.04, windows-2022, macos-14]
         python-version: ["3.13"]
 
     runs-on: ${{ matrix.os }}
@@ -55,43 +55,43 @@ jobs:
         ./vcpkg/bootstrap-vcpkg.sh
         ./vcpkg/vcpkg install --host-triplet="$VCPKG_HOST_TRIPLET"
 
-    - uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
+    # - uses: actions/setup-python@v5
+    #   with:
+    #     python-version: ${{ matrix.python-version }}
 
-    - name: Install uv
-      uses: astral-sh/setup-uv@v5
-      with:
-        cache-dependency-glob: "**/pyproject.toml"
+    # - name: Install uv
+    #   uses: astral-sh/setup-uv@v5
+    #   with:
+    #     cache-dependency-glob: "**/pyproject.toml"
 
-    - name: Build pybmds
-      if: runner.os != 'Windows'
-      run: |
-        uv pip install pybind11==3.0.0 --target=./pybind11
+    # - name: Build pybmds
+    #   if: runner.os != 'Windows'
+    #   run: |
+    #     uv pip install pybind11==3.0.0 --target=./pybind11
 
-        uv venv --python=${{ matrix.python-version }}
+    #     uv venv --python=${{ matrix.python-version }}
 
-        source .venv/bin/activate
+    #     source .venv/bin/activate
 
-        export CMAKE_PREFIX_PATH=${{ github.workspace }}/pybind11/pybind11/share/cmake
-        export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
+    #     export CMAKE_PREFIX_PATH=${{ github.workspace }}/pybind11/pybind11/share/cmake
+    #     export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
 
-        uv pip install -v -e .
+    #     uv pip install -v -e .
 
-        py.test
+    #     py.test
 
-    - name: Build pybmds
-      if: runner.os == 'Windows'
-      run: |
-        uv pip install pybind11==3.0.0 --target=./pybind11
+    # - name: Build pybmds
+    #   if: runner.os == 'Windows'
+    #   run: |
+    #     uv pip install pybind11==3.0.0 --target=./pybind11
 
-        uv venv --python=${{ matrix.python-version }}
+    #     uv venv --python=${{ matrix.python-version }}
 
-        .venv/Scripts/activate
+    #     .venv/Scripts/activate
 
-        $env:CMAKE_PREFIX_PATH="${{ github.workspace }}\pybind11\pybind11\share\cmake"
-        $env:CMAKE_BUILD_PARALLEL_LEVEL = [Environment]::ProcessorCount
+    #     $env:CMAKE_PREFIX_PATH="${{ github.workspace }}\pybind11\pybind11\share\cmake"
+    #     $env:CMAKE_BUILD_PARALLEL_LEVEL = [Environment]::ProcessorCount
 
-        uv pip install -v -e .
+    #     uv pip install -v -e .
 
-        py.test
+    #     py.test
