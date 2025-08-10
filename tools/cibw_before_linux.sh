@@ -6,6 +6,8 @@ if [ "${RUNNER_OS}" = "Linux" ]; then
     yum install -y zip
 fi
 
+pwd
+ls -laht
 echo $VCPKG_HOST_TRIPLET
 ./vcpkg/bootstrap-vcpkg.sh
 ./vcpkg/vcpkg.exe install --host-triplet=$VCPKG_HOST_TRIPLET

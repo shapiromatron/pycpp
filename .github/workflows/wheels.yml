@@ -14,7 +14,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04, windows-2022, macos-14]
+        os: [ubuntu-24.04, macos-14]
+        # os: [ubuntu-24.04, windows-2022, macos-14]
 
     steps:
     - uses: actions/checkout@v4
@@ -55,7 +56,7 @@ jobs:
         CIBW_BEFORE_ALL_WINDOWS: bash tools\cibw_before_windows.sh
         CIBW_ENVIRONMENT_WINDOWS: "CMAKE_PREFIX_PATH=D:/a/pycpp/pycpp/pybind11/pybind11/share/cmake"
 
-        CIBW_ENVIRONMENT_PASS_LINUX: VCPKG_HOST_TRIPLET
+        CIBW_ENVIRONMENT_PASS_LINUX: "VCPKG_HOST_TRIPLET RUNNER_OS"
         CIBW_BEFORE_ALL_LINUX: "source tools/cibw_before_linux.sh"
         CIBW_ENVIRONMENT_LINUX: "CMAKE_PREFIX_PATH=/project/pybind11/pybind11/share/cmake"
 
