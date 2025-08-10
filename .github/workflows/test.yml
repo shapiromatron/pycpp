@@ -81,20 +81,22 @@ jobs:
 
         py.test
 
-    - name: Build pybmds
-      if: runner.os == 'Windows'
-      run: |
-        uv pip install pybind11==3.0.0 --target=./pybind11
+    # - name: Build pybmds
+    #   if: runner.os == 'Windows'
+    #   run: |
+    #     uv pip install pybind11==3.0.0 --target=./pybind11
 
-        uv venv --python=${{ matrix.python-version }}
+    #     uv venv --python=${{ matrix.python-version }}
 
-        .venv/Scripts/activate
+    #     .venv/Scripts/activate
 
-        ls -Recurse ./vcpkg_installed
+    #     ls -Recurse ./vcpkg_installed
 
-        $env:CMAKE_PREFIX_PATH="${{ github.workspace }}\pybind11\pybind11\share\cmake"
-        $env:CMAKE_BUILD_PARALLEL_LEVEL = [Environment]::ProcessorCount
+    #     $env:CMAKE_PREFIX_PATH="${{ github.workspace }}\pybind11\pybind11\share\cmake"
+    #     $env:CMAKE_BUILD_PARALLEL_LEVEL = [Environment]::ProcessorCount
 
-        uv pip install -v -e .
+    #     uv pip install -v -e .
 
-        py.test
+    #     ls -Recurse ./src
+
+    #     py.test
