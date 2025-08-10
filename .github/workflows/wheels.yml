@@ -47,10 +47,7 @@ jobs:
         esac
         echo VCPKG_HOST_TRIPLET="$VCPKG_HOST_TRIPLET" >> $GITHUB_ENV
         echo $VCPKG_HOST_TRIPLET
-        ./vcpkg/bootstrap-vcpkg.sh
-        ./vcpkg/vcpkg install --host-triplet=x64-linux-dynamic
 
-    #  TODO - add here
     - uses: pypa/cibuildwheel@v3.1.3
       env:
         CIBW_BUILD: "cp313-*"
