@@ -20,6 +20,41 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Cache dependencies
+      id: cache-vcpkg-deps
+      uses: actions/cache@v4
+      with:
+        path: vcpkg_installed
+        key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
+
+    - name: Set compile target
+      shell: bash
+      run: |
+        if [[ "$RUNNER_OS" == "Linux" ]]; then
+          VCPKG_HOST_TRIPLET=x64-linux-dynamic
+        elif [[ "$RUNNER_OS" == "Windows" ]]; then
+          VCPKG_HOST_TRIPLET=x64-mingw-dynamic
+        elif [[ "$RUNNER_OS" == "macOS" ]]; then
+          VCPKG_HOST_TRIPLET=arm64-osx-dynamic
+        fi
+        echo VCPKG_HOST_TRIPLET="$VCPKG_HOST_TRIPLET" >> $GITHUB_ENV
+        echo $VCPKG_HOST_TRIPLET
+
+    - name: Acquire vcpkg
+      if: steps.cache-vcpkg-deps.outputs.cache-hit != 'true'
+      uses: actions/checkout@v4
+      with:
+        repository: "Microsoft/vcpkg"
+        path: vcpkg
+        ref: c9c17dcea3016bc241df0422e82b8aea212dcb93
+
+    - name: Install libraries with vcpkg.json
+      if: steps.cache-vcpkg-deps.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        ./vcpkg/bootstrap-vcpkg.sh
+        ./vcpkg/vcpkg install --host-triplet="$VCPKG_HOST_TRIPLET"
+
     - uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
