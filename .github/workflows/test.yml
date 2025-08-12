@@ -3,6 +3,8 @@ name: Run tests
 on:
   workflow_dispatch:
   pull_request:
+  schedule:
+    - cron: '14 3 15 * *'  # Runs at 03:14 UTC on the 15th of every month
   push:
     branches:
       - main
@@ -27,18 +29,17 @@ jobs:
         path: vcpkg_installed
         key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
 
-    - name: Set compile target
+    - name: Export vcpkg host triplet for compilation
       shell: bash
       run: |
-        if [[ "$RUNNER_OS" == "Windows" ]]; then
-          VCPKG_HOST_TRIPLET=x64-windows-static-md
-        elif [[ "$RUNNER_OS" == "Linux" ]]; then
-          VCPKG_HOST_TRIPLET=x64-linux
-        elif [[ "$RUNNER_OS" == "macOS" ]]; then
-          VCPKG_HOST_TRIPLET=arm64-osx
-        fi
+        declare -A tripletMapping=(
+          ["Linux"]="x64-linux"
+          ["Windows"]="x64-windows-static-md"
+          ["macOS"]="arm64-osx"
+        )
+        export VCPKG_HOST_TRIPLET="${tripletMapping[$RUNNER_OS]}"
         echo VCPKG_HOST_TRIPLET="$VCPKG_HOST_TRIPLET" >> $GITHUB_ENV
-        echo $VCPKG_HOST_TRIPLET
+        echo "$VCPKG_HOST_TRIPLET"
 
     - name: Acquire vcpkg
       if: steps.cache-vcpkg-deps.outputs.cache-hit != 'true'

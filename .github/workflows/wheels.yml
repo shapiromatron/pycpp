@@ -3,6 +3,8 @@ name: Build package wheels
 on:
   workflow_dispatch:
   pull_request:
+  schedule:
+    - cron: '14 3 15 * *'  # Runs at 03:14 UTC on the 15th of every month
   push:
     branches:
      - main
@@ -19,7 +21,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Cache dependencies. # TODO - this may not work on linux b/c os is different than container?
+    - name: Cache dependencies
       id: cache-vcpkg-deps
       uses: actions/cache@v4
       with:
@@ -33,26 +35,17 @@ jobs:
         path: vcpkg
         ref: c9c17dcea3016bc241df0422e82b8aea212dcb93
 
-    - name: Install libraries with vcpkg.json (macOS/Linux)
+    - name: Export vcpkg host triplet for compilation
       shell: bash
       run: |
-        case "${RUNNER_OS}" in
-          "Windows")
-              VCPKG_HOST_TRIPLET="x64-windows-static-md"
-              ;;
-          "Linux")
-              VCPKG_HOST_TRIPLET="x64-linux"
-              ;;
-          "macOS")
-              VCPKG_HOST_TRIPLET="arm64-osx"
-              ;;
-          *)
-              echo "Unsupported RUNNER_OS: ${RUNNER_OS}"
-              exit 1
-              ;;
-        esac
+        declare -A tripletMapping=(
+          ["Linux"]="x64-linux"
+          ["Windows"]="x64-windows-static-md"
+          ["macOS"]="arm64-osx"
+        )
+        export VCPKG_HOST_TRIPLET="${tripletMapping[$RUNNER_OS]}"
         echo VCPKG_HOST_TRIPLET="$VCPKG_HOST_TRIPLET" >> $GITHUB_ENV
-        echo $VCPKG_HOST_TRIPLET
+        echo "$VCPKG_HOST_TRIPLET"
 
     - uses: pypa/cibuildwheel@v3.1.3
       env:
