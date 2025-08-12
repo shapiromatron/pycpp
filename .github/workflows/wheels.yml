@@ -2,7 +2,7 @@ name: Build package wheels
 
 on:
   workflow_dispatch:
-  pull_request:
+  #pull_request:
   push:
     branches:
      - main
@@ -38,7 +38,7 @@ jobs:
       run: |
         case "${RUNNER_OS}" in
           "Windows")
-              VCPKG_HOST_TRIPLET="x64-windows"
+              VCPKG_HOST_TRIPLET="x64-windows-static-md"
               ;;
           "Linux")
               VCPKG_HOST_TRIPLET="x64-linux-dynamic"
