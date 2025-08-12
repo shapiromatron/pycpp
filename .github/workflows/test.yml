@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   pull_request:
   schedule:
-    - cron: '14 3 15 * *'  # Runs at 03:14 UTC on the 15th of every month
+    - cron: "14 3 15 * *"  # Runs at 03:14 UTC on the 15th of every month
   push:
     branches:
       - main
@@ -27,22 +27,24 @@ jobs:
       uses: actions/cache@v4
       with:
         path: vcpkg_installed
-        key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
+        key: vcpkg-${{ runner.os }}-${{ hashFiles("vcpkg.json") }}
 
     - name: Export vcpkg host triplet for compilation
-      shell: bash
+      shell: node
       run: |
-        declare -A tripletMapping=(
-          ["Linux"]="x64-linux"
-          ["Windows"]="x64-windows-static-md"
-          ["macOS"]="arm64-osx"
-        )
-        export VCPKG_HOST_TRIPLET="${tripletMapping[$RUNNER_OS]}"
-        echo VCPKG_HOST_TRIPLET="$VCPKG_HOST_TRIPLET" >> $GITHUB_ENV
-        echo "$VCPKG_HOST_TRIPLET"
+        const mapping = {
+          Linux:   "x64-linux",
+          Windows: "x64-windows-static-md",
+          macOS:   "arm64-osx"
+        };
+        const value = mapping[process.env.RUNNER_OS];
+        const fs = require("fs");
+        fs.appendFileSync(process.env.GITHUB_ENV, `VCPKG_HOST_TRIPLET=${value}\n`);
+        print(value);
+
 
     - name: Acquire vcpkg
-      if: steps.cache-vcpkg-deps.outputs.cache-hit != 'true'
+      if: steps.cache-vcpkg-deps.outputs.cache-hit != "true"
       uses: actions/checkout@v4
       with:
         repository: "Microsoft/vcpkg"
@@ -50,7 +52,7 @@ jobs:
         ref: c9c17dcea3016bc241df0422e82b8aea212dcb93
 
     - name: Install libraries with vcpkg.json
-      if: steps.cache-vcpkg-deps.outputs.cache-hit != 'true'
+      if: steps.cache-vcpkg-deps.outputs.cache-hit != "true"
       shell: bash
       run: |
         ./vcpkg/bootstrap-vcpkg.sh
@@ -66,7 +68,7 @@ jobs:
         cache-dependency-glob: "**/pyproject.toml"
 
     - name: Build pybmds
-      if: runner.os != 'Windows'
+      if: runner.os != "Windows"
       run: |
         uv pip install pybind11==3.0.0 --target=./pybind11
 
@@ -82,7 +84,7 @@ jobs:
         py.test
 
     - name: Build pybmds
-      if: runner.os == 'Windows'
+      if: runner.os == "Windows"
       run: |
         uv pip install pybind11==3.0.0 --target=./pybind11
 
