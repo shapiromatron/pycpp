@@ -1,4 +1,4 @@
-name: Run tests
+name: Run Tests
 
 on:
   workflow_dispatch:
@@ -30,18 +30,17 @@ jobs:
         key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
 
     - name: Export vcpkg host triplet for compilation
+      shell: bash
       run: |
-        node -e "
-          const mapping = {
-            Linux:   'x64-linux',
-            Windows: 'x64-windows-static-md',
-            macOS:   'arm64-osx'
-          };
-          const value = mapping[process.env.RUNNER_OS];
-          const fs = require('fs');
-          fs.appendFileSync(process.env.GITHUB_ENV, `VCPKG_HOST_TRIPLET=${value}\n`);
-          print(value);
-        "
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+          VCPKG_HOST_TRIPLET=x64-windows-static-md
+        elif [[ "$RUNNER_OS" == "Linux" ]]; then
+          VCPKG_HOST_TRIPLET=x64-linux
+        elif [[ "$RUNNER_OS" == "macOS" ]]; then
+          VCPKG_HOST_TRIPLET=arm64-osx
+        fi
+        echo VCPKG_HOST_TRIPLET="$VCPKG_HOST_TRIPLET" >> $GITHUB_ENV
+        echo $VCPKG_HOST_TRIPLET
 
     - name: Acquire vcpkg
       if: steps.cache-vcpkg-deps.outputs.cache-hit != 'true'
@@ -68,7 +67,7 @@ jobs:
         cache-dependency-glob: "**/pyproject.toml"
 
     - name: Build pybmds
-      if: runner.os != "Windows"
+      if: runner.os != 'Windows'
       run: |
         uv pip install pybind11==3.0.0 --target=./pybind11
 
@@ -84,7 +83,7 @@ jobs:
         py.test
 
     - name: Build pybmds
-      if: runner.os == "Windows"
+      if: runner.os == 'Windows'
       run: |
         uv pip install pybind11==3.0.0 --target=./pybind11
 

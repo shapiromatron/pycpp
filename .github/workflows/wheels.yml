@@ -1,4 +1,4 @@
-name: Build package wheels
+name: Build Python Wheels
 
 on:
   workflow_dispatch:
@@ -34,6 +34,19 @@ jobs:
         repository: "Microsoft/vcpkg"
         path: vcpkg
         ref: c9c17dcea3016bc241df0422e82b8aea212dcb93
+
+    - name: Export vcpkg host triplet for compilation
+      shell: bash
+      run: |
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+          VCPKG_HOST_TRIPLET=x64-windows-static-md
+        elif [[ "$RUNNER_OS" == "Linux" ]]; then
+          VCPKG_HOST_TRIPLET=x64-linux
+        elif [[ "$RUNNER_OS" == "macOS" ]]; then
+          VCPKG_HOST_TRIPLET=arm64-osx
+        fi
+        echo VCPKG_HOST_TRIPLET="$VCPKG_HOST_TRIPLET" >> $GITHUB_ENV
+        echo $VCPKG_HOST_TRIPLET
 
     - name: Export vcpkg host triplet for compilation
       run: |
