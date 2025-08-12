@@ -8,7 +8,12 @@ authors = [
 requires-python = ">=3.13"
 dependencies = [
   "numpy",
-  "pytest",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest~=8.4.1",
+  "mypy~=1.17.1",
 ]
 
 [tool.setuptools.dynamic]
@@ -20,18 +25,11 @@ include = ["demo*"]
 
 [build-system]
 requires = [
-    "setuptools",
-    "pybind11"
+  "setuptools",
+  "pybind11~=3.0.0"
 ]
 build-backend = "setuptools.build_meta"
 
 [tool.pytest.ini_options]
 testpaths = "tests"
 python_files = ["test_*.py"]
-
-[tool.cibuildwheel]
-test-command = "pytest {project}/tests"
-test-extras = ["test"]
-test-skip = ["*universal2:arm64"]
-# Setuptools bug causes collision between pypy and cpython artifacts
-before-build = "rm -rf {project}/build"
