@@ -30,18 +30,18 @@ jobs:
         key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
 
     - name: Export vcpkg host triplet for compilation
-      shell: node
       run: |
-        const mapping = {
-          Linux:   "x64-linux",
-          Windows: "x64-windows-static-md",
-          macOS:   "arm64-osx"
-        };
-        const value = mapping[process.env.RUNNER_OS];
-        const fs = require("fs");
-        fs.appendFileSync(process.env.GITHUB_ENV, `VCPKG_HOST_TRIPLET=${value}\n`);
-        print(value);
-
+        node -e "
+          const mapping = {
+            Linux:   'x64-linux',
+            Windows: 'x64-windows-static-md',
+            macOS:   'arm64-osx'
+          };
+          const value = mapping[process.env.RUNNER_OS];
+          const fs = require('fs');
+          fs.appendFileSync(process.env.GITHUB_ENV, `VCPKG_HOST_TRIPLET=${value}\n`);
+          print(value);
+        "
 
     - name: Acquire vcpkg
       if: steps.cache-vcpkg-deps.outputs.cache-hit != "true"
