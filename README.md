@@ -33,7 +33,7 @@ git checkout FETCH_HEAD
 cd ..
 
 # build static dependencies; use the appropriate triplet (e.g., x64-linux, arm64-osx)
-export $VCPKG_HOST_TRIPLET="arm64-osx"
+export VCPKG_HOST_TRIPLET="arm64-osx"
 ./vcpkg/bootstrap-vcpkg.sh
 ./vcpkg/vcpkg install --host-triplet=$VCPKG_HOST_TRIPLET
 
@@ -41,8 +41,8 @@ export $VCPKG_HOST_TRIPLET="arm64-osx"
 uv pip install pybind11==3.0.0 --target=./pybind11
 
 # set environment variables for building python extension
-export $CMAKE_PREFIX_PATH=export foo="$(readlink -f ./pybind11/pybind11/share/cmake)"
-export $CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
+export CMAKE_PREFIX_PATH="$(readlink -f ./pybind11/pybind11/share/cmake)"
+export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
 
 echo "$VCPKG_HOST_TRIPLET"
 echo "$CMAKE_PREFIX_PATH"
@@ -50,10 +50,10 @@ echo "$CMAKE_BUILD_PARALLEL_LEVEL"
 
 # create a new python virtual environment
 uv venv --python=3.13
-.venv/bin/activate
+source .venv/bin/activate
 
 # compile and install the package
-uv pip install -v -e .
+uv pip install -v -e ".[dev]"
 
 # generate typing stubs for C++ file
 stubgen -p demo.cppcore -o src
@@ -99,7 +99,7 @@ uv venv --python=3.13
 .venv/Scripts/activate
 
 # compile and install the package
-uv pip install -v -e .
+uv pip install -v -e ".[dev]"
 
 # generate typing stubs for C++ file
 stubgen -p demo.cppcore -o src
