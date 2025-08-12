@@ -97,7 +97,6 @@ jobs:
 
         uv pip install -v -e .
 
-        cp vcpkg_installed/x64-windows/lib/*.lib src/demo/
         cp vcpkg_installed/x64-windows/bin/*.dll src/demo/
 
         ls vcpkg_installed/x64-windows/
