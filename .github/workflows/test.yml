@@ -30,12 +30,12 @@ jobs:
     - name: Set compile target
       shell: bash
       run: |
-        if [[ "$RUNNER_OS" == "Linux" ]]; then
-          VCPKG_HOST_TRIPLET=x64-linux-dynamic
-        elif [[ "$RUNNER_OS" == "Windows" ]]; then
-          VCPKG_HOST_TRIPLET=x64-mingw-dynamic
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+          VCPKG_HOST_TRIPLET=x64-windows-static-md
+        elif [[ "$RUNNER_OS" == "Linux" ]]; then
+          VCPKG_HOST_TRIPLET=x64-linux
         elif [[ "$RUNNER_OS" == "macOS" ]]; then
-          VCPKG_HOST_TRIPLET=arm64-osx-dynamic
+          VCPKG_HOST_TRIPLET=arm64-osx
         fi
         echo VCPKG_HOST_TRIPLET="$VCPKG_HOST_TRIPLET" >> $GITHUB_ENV
         echo $VCPKG_HOST_TRIPLET

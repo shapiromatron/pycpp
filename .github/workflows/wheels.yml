@@ -19,7 +19,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Cache dependencies
+    - name: Cache dependencies. # TODO - this may not work on linux b/c os is different than container?
       id: cache-vcpkg-deps
       uses: actions/cache@v4
       with:
@@ -38,13 +38,13 @@ jobs:
       run: |
         case "${RUNNER_OS}" in
           "Windows")
-              VCPKG_HOST_TRIPLET="x64-mingw-dynamic"
+              VCPKG_HOST_TRIPLET="x64-windows-static-md"
               ;;
           "Linux")
-              VCPKG_HOST_TRIPLET="x64-linux-dynamic"
+              VCPKG_HOST_TRIPLET="x64-linux"
               ;;
           "macOS")
-              VCPKG_HOST_TRIPLET="arm64-osx-dynamic"
+              VCPKG_HOST_TRIPLET="arm64-osx"
               ;;
           *)
               echo "Unsupported RUNNER_OS: ${RUNNER_OS}"

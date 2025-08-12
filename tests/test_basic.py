@@ -1,3 +1,4 @@
+import pytest
 import numpy as np
 
 import demo
@@ -16,3 +17,13 @@ def test_eigen_matmul():
     result = cppcore.eigen_matmul(a, b)
     expected = np.matmul(a, b)
     np.testing.assert_allclose(result, expected)
+
+
+def test_gsl_bessel():
+    assert pytest.approx(1.0, rel=1e-8) == cppcore.gsl_bessel(0.0)
+    assert pytest.approx(0.7651976865, rel=1e-8) == cppcore.gsl_bessel(1.0)
+
+
+def test_nlopt_optimize():
+    res = cppcore.nlopt_optimize([-10, -10], [10, 10])
+    assert pytest.approx([1.0, 2.0]) == res
