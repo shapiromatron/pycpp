@@ -2,7 +2,7 @@ name: Build package wheels
 
 on:
   workflow_dispatch:
-  # pull_request:
+  pull_request:
   push:
     branches:
      - main
