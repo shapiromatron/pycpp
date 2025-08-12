@@ -48,20 +48,6 @@ jobs:
         echo VCPKG_HOST_TRIPLET="$VCPKG_HOST_TRIPLET" >> $GITHUB_ENV
         echo $VCPKG_HOST_TRIPLET
 
-    - name: Export vcpkg host triplet for compilation
-      run: |
-        node -e "
-          const mapping = {
-            Linux:   'x64-linux',
-            Windows: 'x64-windows-static-md',
-            macOS:   'arm64-osx'
-          };
-          const value = mapping[process.env.RUNNER_OS];
-          const fs = require('fs');
-          fs.appendFileSync(process.env.GITHUB_ENV, `VCPKG_HOST_TRIPLET=${value}\n`);
-          print(value);
-        "
-
     - uses: pypa/cibuildwheel@v3.1.3
       env:
         CIBW_BUILD: "cp313-*"
