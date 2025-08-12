@@ -1,8 +1,10 @@
-name: Run tests
+name: Run Tests
 
 on:
   workflow_dispatch:
   pull_request:
+  schedule:
+    - cron: "14 3 15 * *"  # Runs at 03:14 UTC on the 15th of every month
   push:
     branches:
       - main
@@ -27,7 +29,7 @@ jobs:
         path: vcpkg_installed
         key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
 
-    - name: Set compile target
+    - name: Export vcpkg host triplet for compilation
       shell: bash
       run: |
         if [[ "$RUNNER_OS" == "Windows" ]]; then
@@ -76,7 +78,7 @@ jobs:
         export CMAKE_PREFIX_PATH=${{ github.workspace }}/pybind11/pybind11/share/cmake
         export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
 
-        uv pip install -v -e .
+        uv pip install -v -e ".[dev]"
 
         py.test
 
@@ -92,6 +94,6 @@ jobs:
         $env:CMAKE_PREFIX_PATH="${{ github.workspace }}\pybind11\pybind11\share\cmake"
         $env:CMAKE_BUILD_PARALLEL_LEVEL = [Environment]::ProcessorCount
 
-        uv pip install -v -e .
+        uv pip install -v -e ".[dev]"
 
         py.test

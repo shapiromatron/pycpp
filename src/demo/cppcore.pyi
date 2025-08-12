@@ -1,0 +1,16 @@
+import collections.abc
+import numpy
+import numpy.typing
+import typing
+
+def add(arg0: typing.SupportsInt, arg1: typing.SupportsInt) -> int: ...
+def eigen_matmul(
+    arg0: typing.Annotated[numpy.typing.ArrayLike, numpy.float64],
+    arg1: typing.Annotated[numpy.typing.ArrayLike, numpy.float64],
+) -> numpy.typing.NDArray[numpy.float64]: ...
+def gsl_bessel(arg0: typing.SupportsFloat) -> float: ...
+def nlopt_optimize(
+    lower_bounds: collections.abc.Sequence[typing.SupportsFloat],
+    upper_bounds: collections.abc.Sequence[typing.SupportsFloat],
+) -> list[float]: ...
+def subtract(arg0: typing.SupportsInt, arg1: typing.SupportsInt) -> int: ...

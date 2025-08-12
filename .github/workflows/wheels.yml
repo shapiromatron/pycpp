@@ -1,8 +1,10 @@
-name: Build package wheels
+name: Build Python Wheels
 
 on:
   workflow_dispatch:
   pull_request:
+  schedule:
+    - cron: "14 3 15 * *"  # Runs at 03:14 UTC on the 15th of every month
   push:
     branches:
      - main
@@ -19,7 +21,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Cache dependencies. # TODO - this may not work on linux b/c os is different than container?
+    - name: Cache dependencies
       id: cache-vcpkg-deps
       uses: actions/cache@v4
       with:
@@ -33,24 +35,16 @@ jobs:
         path: vcpkg
         ref: c9c17dcea3016bc241df0422e82b8aea212dcb93
 
-    - name: Install libraries with vcpkg.json (macOS/Linux)
+    - name: Export vcpkg host triplet for compilation
       shell: bash
       run: |
-        case "${RUNNER_OS}" in
-          "Windows")
-              VCPKG_HOST_TRIPLET="x64-windows-static-md"
-              ;;
-          "Linux")
-              VCPKG_HOST_TRIPLET="x64-linux"
-              ;;
-          "macOS")
-              VCPKG_HOST_TRIPLET="arm64-osx"
-              ;;
-          *)
-              echo "Unsupported RUNNER_OS: ${RUNNER_OS}"
-              exit 1
-              ;;
-        esac
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+          VCPKG_HOST_TRIPLET=x64-windows-static-md
+        elif [[ "$RUNNER_OS" == "Linux" ]]; then
+          VCPKG_HOST_TRIPLET=x64-linux
+        elif [[ "$RUNNER_OS" == "macOS" ]]; then
+          VCPKG_HOST_TRIPLET=arm64-osx
+        fi
         echo VCPKG_HOST_TRIPLET="$VCPKG_HOST_TRIPLET" >> $GITHUB_ENV
         echo $VCPKG_HOST_TRIPLET
 
@@ -58,7 +52,10 @@ jobs:
       env:
         CIBW_BUILD: "cp313-*"
         CIBW_SKIP: "*musllinux* *win32*"
+        CIBW_TEST_COMMAND: pytest {project}/tests
+        CIBW_TEST_EXTRAS: dev
 
+        CIBW_BEFORE_BUILD: rm -rf {project}/build
         CIBW_BEFORE_ALL_WINDOWS: bash tools\cibw_before.sh
         CIBW_ENVIRONMENT_WINDOWS: "CMAKE_PREFIX_PATH=D:/a/pycpp/pycpp/pybind11/pybind11/share/cmake"
 

@@ -1,5 +1,11 @@
 cmake_minimum_required(VERSION 3.4...3.18)
 
+
+# required to find dependencies
+if(NOT DEFINED ENV{VCPKG_HOST_TRIPLET})
+    message(FATAL_ERROR "Environment variable 'VCPKG_HOST_TRIPLET' is not set")
+endif()
+
 project(cppcore)
 
 set(VCPKG_HOST_TRIPLET $ENV{VCPKG_HOST_TRIPLET})
@@ -27,9 +33,14 @@ find_library(NLOPT_LIB nlopt PATHS "${NLOPT_DIR_LIBRARY_DIR}")
 
 pybind11_add_module(cppcore src/cpp/main.cpp)
 
-include_directories(${CMAKE_SOURCE_DIR}/src/cpp ${EIGEN_PATH} ${GSL_INCLUDE_DIR} ${NLOPT_DIR_INCLUDE_DIR})
-target_include_directories(cppcore PRIVATE ${GSL_INCLUDE_DIR} ${NLOPT_DIR_INCLUDE_DIR})
-target_link_libraries(cppcore PRIVATE  ${GSL_LIB} ${GSLCBLAS_LIB} ${NLOPT_LIB})
+target_include_directories(cppcore PRIVATE ${CMAKE_SOURCE_DIR}/src/cpp)
+target_include_directories(cppcore PRIVATE ${EIGEN_PATH})
+target_include_directories(cppcore PRIVATE ${GSL_INCLUDE_DIR})
+target_include_directories(cppcore PRIVATE ${NLOPT_DIR_INCLUDE_DIR})
+
+target_link_libraries(cppcore PRIVATE ${NLOPT_LIB})
+target_link_libraries(cppcore PRIVATE ${GSL_LIB})
+target_link_libraries(cppcore PRIVATE ${GSLCBLAS_LIB})
 
 target_compile_definitions(
     cppcore
