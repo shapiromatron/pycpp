@@ -97,6 +97,9 @@ jobs:
 
         uv pip install -v -e .
 
-        ls -Recurse ./src
+        cp vcpkg_installed/x64-windows/lib/*.lib src/demo/
+        cp vcpkg_installed/x64-windows/bin/*.dll src/demo/
+
+        ls cp vcpkg_installed/x64-windows/
 
         py.test
