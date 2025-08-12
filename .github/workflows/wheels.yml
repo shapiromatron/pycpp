@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2022]
+        os: [ubuntu-24.04, windows-2022, macos-14]
 
     steps:
     - uses: actions/checkout@v4
@@ -41,10 +41,10 @@ jobs:
               VCPKG_HOST_TRIPLET="x64-windows-static-md"
               ;;
           "Linux")
-              VCPKG_HOST_TRIPLET="x64-linux-dynamic"
+              VCPKG_HOST_TRIPLET="x64-linux"
               ;;
           "macOS")
-              VCPKG_HOST_TRIPLET="arm64-osx-dynamic"
+              VCPKG_HOST_TRIPLET="arm64-osx"
               ;;
           *)
               echo "Unsupported RUNNER_OS: ${RUNNER_OS}"
