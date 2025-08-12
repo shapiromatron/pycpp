@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.4...3.18)
 project(cppcore)
 
 set(VCPKG_HOST_TRIPLET $ENV{VCPKG_HOST_TRIPLET})
-set(VCPKG_HOST_TRIPLET $ENV{VCPKG_HOST_TRIPLET})
 
 set(PYBIND11_FINDPYTHON ON)
 find_package(pybind11 CONFIG REQUIRED)
