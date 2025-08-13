@@ -42,7 +42,4 @@ target_link_libraries(cppcore PRIVATE ${NLOPT_LIB})
 target_link_libraries(cppcore PRIVATE ${GSL_LIB})
 target_link_libraries(cppcore PRIVATE ${GSLCBLAS_LIB})
 
-target_compile_definitions(
-    cppcore
-    PRIVATE VERSION_INFO=${EXAMPLE_VERSION_INFO}
-)
+target_compile_definitions(cppcore)
