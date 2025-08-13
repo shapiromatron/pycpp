@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
   pull_request:
   schedule:
-    - cron: "14 3 15 * *"  # Runs at 03:14 UTC on the 15th of every month
+    - cron: "14 3 15 * *" # Runs at 03:14 UTC on the 15th of every month
   push:
     branches:
-     - main
+      - main
 
 jobs:
   build_wheels:
@@ -19,58 +19,58 @@ jobs:
         os: [ubuntu-24.04, windows-2022, macos-14]
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Cache dependencies
-      id: cache-vcpkg-deps
-      uses: actions/cache@v4
-      with:
-        path: vcpkg_installed
-        key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
+      - name: Cache dependencies
+        id: cache-vcpkg-deps
+        uses: actions/cache@v4
+        with:
+          path: vcpkg_installed
+          key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
 
-    - name: Acquire vcpkg
-      uses: actions/checkout@v4
-      with:
-        repository: "Microsoft/vcpkg"
-        path: vcpkg
-        ref: c9c17dcea3016bc241df0422e82b8aea212dcb93
+      - name: Acquire vcpkg
+        uses: actions/checkout@v4
+        with:
+          repository: "Microsoft/vcpkg"
+          path: vcpkg
+          ref: c9c17dcea3016bc241df0422e82b8aea212dcb93
 
-    - name: Export vcpkg host triplet for compilation
-      shell: bash
-      run: |
-        if [[ "$RUNNER_OS" == "Windows" ]]; then
-          VCPKG_HOST_TRIPLET=x64-windows-static-md
-        elif [[ "$RUNNER_OS" == "Linux" ]]; then
-          VCPKG_HOST_TRIPLET=x64-linux
-        elif [[ "$RUNNER_OS" == "macOS" ]]; then
-          VCPKG_HOST_TRIPLET=arm64-osx
-        fi
-        echo VCPKG_HOST_TRIPLET="$VCPKG_HOST_TRIPLET" >> $GITHUB_ENV
-        echo $VCPKG_HOST_TRIPLET
+      - name: Export vcpkg host triplet for compilation
+        shell: bash
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            VCPKG_HOST_TRIPLET=x64-windows-static-md
+          elif [[ "$RUNNER_OS" == "Linux" ]]; then
+            VCPKG_HOST_TRIPLET=x64-linux
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            VCPKG_HOST_TRIPLET=arm64-osx
+          fi
+          echo VCPKG_HOST_TRIPLET="$VCPKG_HOST_TRIPLET" >> $GITHUB_ENV
+          echo $VCPKG_HOST_TRIPLET
 
-    - uses: pypa/cibuildwheel@v3.1.3
-      env:
-        CIBW_BUILD: "cp313-*"
-        CIBW_SKIP: "*musllinux* *win32*"
-        CIBW_TEST_COMMAND: pytest {project}/tests
-        CIBW_TEST_EXTRAS: dev
+      - uses: pypa/cibuildwheel@v3.1.3
+        env:
+          CIBW_BUILD: "cp313-*"
+          CIBW_SKIP: "*musllinux* *win32*"
+          CIBW_TEST_COMMAND: pytest {project}/tests
+          CIBW_TEST_EXTRAS: dev
 
-        CIBW_BEFORE_BUILD: rm -rf {project}/build
-        CIBW_BEFORE_ALL_WINDOWS: bash tools\cibw_before.sh
-        CIBW_ENVIRONMENT_WINDOWS: "CMAKE_PREFIX_PATH=D:/a/pycpp/pycpp/pybind11/pybind11/share/cmake"
+          CIBW_BEFORE_BUILD: rm -rf {project}/build
+          CIBW_BEFORE_ALL_WINDOWS: bash tools\cibw_before.sh
+          CIBW_ENVIRONMENT_WINDOWS: "CMAKE_PREFIX_PATH=D:/a/pycpp/pycpp/pybind11/pybind11/share/cmake"
 
-        CIBW_ENVIRONMENT_PASS_LINUX: "VCPKG_HOST_TRIPLET RUNNER_OS"
-        CIBW_BEFORE_ALL_LINUX: "source tools/cibw_before.sh"
-        CIBW_ENVIRONMENT_LINUX: "CMAKE_PREFIX_PATH=/project/pybind11/pybind11/share/cmake"
+          CIBW_ENVIRONMENT_PASS_LINUX: "VCPKG_HOST_TRIPLET RUNNER_OS"
+          CIBW_BEFORE_ALL_LINUX: "source tools/cibw_before.sh"
+          CIBW_ENVIRONMENT_LINUX: "CMAKE_PREFIX_PATH=/project/pybind11/pybind11/share/cmake"
 
-        CIBW_BEFORE_ALL_MACOS: "source tools/cibw_before.sh"
-        CIBW_ENVIRONMENT_MACOS: "CMAKE_PREFIX_PATH=${{ github.workspace }}/pybind11/pybind11/share/cmake"
-        MACOSX_DEPLOYMENT_TARGET: "14.0"
+          CIBW_BEFORE_ALL_MACOS: "source tools/cibw_before.sh"
+          CIBW_ENVIRONMENT_MACOS: "CMAKE_PREFIX_PATH=${{ github.workspace }}/pybind11/pybind11/share/cmake"
+          MACOSX_DEPLOYMENT_TARGET: "14.0"
 
-    - uses: actions/upload-artifact@v4
-      with:
-        name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
-        path: ./wheelhouse/*.whl
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
+          path: ./wheelhouse/*.whl
 
   merge_wheels:
     runs-on: ubuntu-24.04
