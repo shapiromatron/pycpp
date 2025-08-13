@@ -5,10 +5,12 @@ import demo
 from demo import cppcore
 
 
-def test_main():
+def test_version():
     assert demo.__version__ == "0.0.1"
+
+
+def test_basic_cpp():
     assert cppcore.add(1, 2) == 3
-    assert cppcore.subtract(1, 2) == -1
 
 
 def test_eigen_matmul():

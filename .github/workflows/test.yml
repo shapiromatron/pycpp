@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   pull_request:
   schedule:
-    - cron: "14 3 15 * *"  # Runs at 03:14 UTC on the 15th of every month
+    - cron: "14 3 15 * *" # Runs at 03:14 UTC on the 15th of every month
   push:
     branches:
       - main
@@ -20,80 +20,80 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Cache dependencies
-      id: cache-vcpkg-deps
-      uses: actions/cache@v4
-      with:
-        path: vcpkg_installed
-        key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
+      - name: Cache dependencies
+        id: cache-vcpkg-deps
+        uses: actions/cache@v4
+        with:
+          path: vcpkg_installed
+          key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
 
-    - name: Export vcpkg host triplet for compilation
-      shell: bash
-      run: |
-        if [[ "$RUNNER_OS" == "Windows" ]]; then
-          VCPKG_HOST_TRIPLET=x64-windows-static-md
-        elif [[ "$RUNNER_OS" == "Linux" ]]; then
-          VCPKG_HOST_TRIPLET=x64-linux
-        elif [[ "$RUNNER_OS" == "macOS" ]]; then
-          VCPKG_HOST_TRIPLET=arm64-osx
-        fi
-        echo VCPKG_HOST_TRIPLET="$VCPKG_HOST_TRIPLET" >> $GITHUB_ENV
-        echo $VCPKG_HOST_TRIPLET
+      - name: Export vcpkg host triplet for compilation
+        shell: bash
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            VCPKG_HOST_TRIPLET=x64-windows-static-md
+          elif [[ "$RUNNER_OS" == "Linux" ]]; then
+            VCPKG_HOST_TRIPLET=x64-linux
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            VCPKG_HOST_TRIPLET=arm64-osx
+          fi
+          echo VCPKG_HOST_TRIPLET="$VCPKG_HOST_TRIPLET" >> $GITHUB_ENV
+          echo $VCPKG_HOST_TRIPLET
 
-    - name: Acquire vcpkg
-      if: steps.cache-vcpkg-deps.outputs.cache-hit != 'true'
-      uses: actions/checkout@v4
-      with:
-        repository: "Microsoft/vcpkg"
-        path: vcpkg
-        ref: c9c17dcea3016bc241df0422e82b8aea212dcb93
+      - name: Acquire vcpkg
+        if: steps.cache-vcpkg-deps.outputs.cache-hit != 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: "Microsoft/vcpkg"
+          path: vcpkg
+          ref: c9c17dcea3016bc241df0422e82b8aea212dcb93
 
-    - name: Install libraries with vcpkg.json
-      if: steps.cache-vcpkg-deps.outputs.cache-hit != 'true'
-      shell: bash
-      run: |
-        ./vcpkg/bootstrap-vcpkg.sh
-        ./vcpkg/vcpkg install --host-triplet="$VCPKG_HOST_TRIPLET"
+      - name: Install libraries with vcpkg.json
+        if: steps.cache-vcpkg-deps.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          ./vcpkg/bootstrap-vcpkg.sh
+          ./vcpkg/vcpkg install --host-triplet="$VCPKG_HOST_TRIPLET"
 
-    - uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    - name: Install uv
-      uses: astral-sh/setup-uv@v5
-      with:
-        cache-dependency-glob: "**/pyproject.toml"
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          cache-dependency-glob: "**/pyproject.toml"
 
-    - name: Build pybmds
-      if: runner.os != 'Windows'
-      run: |
-        uv pip install pybind11==3.0.0 --target=./pybind11
+      - name: Build pybmds
+        if: runner.os != 'Windows'
+        run: |
+          uv pip install pybind11==3.0.0 --target=./pybind11
 
-        uv venv --python=${{ matrix.python-version }}
+          uv venv --python=${{ matrix.python-version }}
 
-        source .venv/bin/activate
+          source .venv/bin/activate
 
-        export CMAKE_PREFIX_PATH=${{ github.workspace }}/pybind11/pybind11/share/cmake
-        export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
+          export CMAKE_PREFIX_PATH=${{ github.workspace }}/pybind11/pybind11/share/cmake
+          export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
 
-        uv pip install -v -e ".[dev]"
+          uv pip install -v -e ".[dev]"
 
-        py.test
+          py.test
 
-    - name: Build pybmds
-      if: runner.os == 'Windows'
-      run: |
-        uv pip install pybind11==3.0.0 --target=./pybind11
+      - name: Build pybmds
+        if: runner.os == 'Windows'
+        run: |
+          uv pip install pybind11==3.0.0 --target=./pybind11
 
-        uv venv --python=${{ matrix.python-version }}
+          uv venv --python=${{ matrix.python-version }}
 
-        .venv/Scripts/activate
+          .venv/Scripts/activate
 
-        $env:CMAKE_PREFIX_PATH="${{ github.workspace }}\pybind11\pybind11\share\cmake"
-        $env:CMAKE_BUILD_PARALLEL_LEVEL = [Environment]::ProcessorCount
+          $env:CMAKE_PREFIX_PATH="${{ github.workspace }}\pybind11\pybind11\share\cmake"
+          $env:CMAKE_BUILD_PARALLEL_LEVEL = [Environment]::ProcessorCount
 
-        uv pip install -v -e ".[dev]"
+          uv pip install -v -e ".[dev]"
 
-        py.test
+          py.test

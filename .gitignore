@@ -7,7 +7,6 @@ _generate/
 *.egg-info
 *env*
 
-cfg/
 pybind11/
 vcpkg/
 vcpkg_installed/
